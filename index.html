@@ -2,32 +2,131 @@
 <html>
 <head>
   <title>RNG Fish-It Simulator</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body { font-family: Arial; padding: 20px; background:#0f1724; color:white;}
-    input { margin: 5px; padding:4px; border-radius:6px; border:1px solid #333; background:#0b1a27; color:white; }
-    button { padding:8px 12px; border:none; border-radius:8px; cursor:pointer; margin:5px; font-weight:700; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f1724;
+      color: white;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      overflow: hidden; /* agar yang scroll hanya main */
+    }
+
+    /* HEADER FIXED */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #1e293b;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      z-index: 10;
+      border-bottom: 2px solid #334155;
+    }
+
+    /* FOOTER FIXED */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #1e293b;
+      padding: 10px;
+      text-align: center;
+      font-size: 13px;
+      color: #cbd5e1;
+      border-top: 2px solid #334155;
+    }
+
+    /* MAIN CONTENT SCROLLABLE */
+    .main {
+      position: absolute;
+      top: 70px;       /* tinggi header */
+      bottom: 50px;    /* tinggi footer */
+      left: 0;
+      right: 0;
+      overflow-y: scroll;
+      padding: 20px;
+    }
+
+    input {
+      margin: 5px 0;
+      padding: 8px;
+      width: 95%;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #0b1a27;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px 0;
+      font-weight: 700;
+      width: 100%;
+      font-size: 16px;
+    }
+
     #runBtn { background:#38bdf8; color:#042033; }
     #resetBtn { background:#ef4444; color:white; }
-    pre { background:#0b1a27; padding:15px; border-radius:10px; }
+
+    pre {
+      background:#0b1a27;
+      padding:15px;
+      border-radius:10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+
   </style>
 </head>
 <body>
 
-<h2>🎣 RNG Fish-It Simulator (Pity + Continues + History Log)</h2>
+<!-- HEADER -->
+<header>
+  🎣 RNG Fish-It Simulator
+</header>
 
-<label>Rod Lucky (%): </label>
-<input id="rod" value="760"><br>
+<!-- MAIN CONTENT -->
+<div class="main">
 
-<label>Bait Lucky (%): </label>
-<input id="bait" value="320"><br>
+  <h3>Konfigurasi</h3>
 
-<label>Jumlah mancing per run:</label>
-<input id="tries" value="500"><br>
+  <label>Rod Lucky (%):</label>
+  <input id="rod" value="760">
 
-<button id="runBtn" onclick="simulate()">▶ Jalankan Simulasi</button>
-<button id="resetBtn" onclick="resetAll()">🔄 Reset</button>
+  <label>Bait Lucky (%):</label>
+  <input id="bait" value="320">
 
-<pre id="output"></pre>
+  <label>Jumlah mancing per run:</label>
+  <input id="tries" value="500">
+
+   <label>Lucky Bonus Manual (%):</label>
+  <input id="manualLucky" value="0">
+  
+  <button id="runBtn" onclick="simulate()">▶ Jalankan Simulasi</button>
+  <button id="resetBtn" onclick="resetAll()">🔄 Reset</button>
+
+  <pre id="output"></pre>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  © 2025 • Fish-It RNG Simulator Mobile
+</footer>
 
 <script>
 let pity = 0;
@@ -36,7 +135,6 @@ let counts = {};
 let initialized = false;
 let runNumber = 0;
 
-// HISTORY: menyimpan semua hasil run
 let historyLogs = [];
 
 let baseRarity = {
@@ -57,20 +155,30 @@ function initCounters(){
 function getAdjustedRarity() {
   let rod = parseFloat(document.getElementById("rod").value);
   let bait = parseFloat(document.getElementById("bait").value);
+  let manualLucky = parseFloat(document.getElementById("manualLucky").value);
 
-  let luckyMultiplier = 1 + (rod + bait) / 15000;
+  // Lucky multiplier → DILEMAHKAN agar tidak terlalu kuat
+  // Semua lucky dihitung lebih kecil (mirip game aslinya)
+  let luckyMultiplier = 1 + (rod + bait + manualLucky) / 20000;
+
+  // pity tetap mempengaruhi secret
   let pityBonus = pity;
 
   let adjusted = {};
-  for (let r in baseRarity) adjusted[r] = baseRarity[r] * luckyMultiplier;
+  for (let r in baseRarity) {
+    adjusted[r] = baseRarity[r] * luckyMultiplier;
+  }
 
+  // secret khusus → multiplier kecil + pity
   adjusted["Secret"] = baseRarity["Secret"] * luckyMultiplier + pityBonus;
 
+  // Normalisasi
   let sum = Object.values(adjusted).reduce((a,b)=>a+b, 0);
   for (let r in adjusted) adjusted[r] /= sum;
 
   return adjusted;
 }
+
 
 function rollRarity(adjusted){
   let x = Math.random();
