@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RNG Fish-It Simulator</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background:#0f1724; color:white;}
+    input { margin: 5px; padding:4px; border-radius:6px; border:1px solid #333; background:#0b1a27; color:white; }
+    button { padding:8px 12px; border:none; border-radius:8px; cursor:pointer; margin:5px; font-weight:700; }
+    #runBtn { background:#38bdf8; color:#042033; }
+    #resetBtn { background:#ef4444; color:white; }
+    pre { background:#0b1a27; padding:15px; border-radius:10px; }
+  </style>
+</head>
+<body>
+
+<h2>🎣 RNG Fish-It Simulator (Pity + Continues)</h2>
+
+<label>Rod Lucky (%): </label>
+<input id="rod" value="760"><br>
+
+<label>Bait Lucky (%): </label>
+<input id="bait" value="320"><br>
+
+<label>Jumlah mancing per run:</label>
+<input id="tries" value="500"><br>
+
+<button id="runBtn" onclick="simulate()">▶ Jalankan Simulasi</button>
+<button id="resetBtn" onclick="resetAll()">🔄 Reset</button>
+
+<pre id="output"></pre>
+
+<script>
+let pity = 0;                 // pity sistem
+let totalMancing = 0;         // total run kumulatif
+let counts = {};              // counter rarity
+let initialized = false;      // kontrol inisialisasi awal
+
+// Base rarity Fish-It (perkiraan mendekati real)
+let baseRarity = {
+  "Common":    0.75,
+  "Uncommon":  0.15,
+  "Rare":      0.06,
+  "Epic":      0.025,
+  "Legendary": 0.008,
+  "Mythic":    0.0008,
+  "Secret":    1 / 4000000    // 1:4 juta ~ realistis
+};
+
+function initCounters(){
+  for (let r in baseRarity) counts[r] = 0;
+  initialized = true;
+}
+
+// membuat probabilitas modifikasi (rod + bait + pity)
+function getAdjustedRarity() {
+
+  let rod = parseFloat(document.getElementById("rod").value);
+  let bait = parseFloat(document.getElementById("bait").value);
+
+  // lucky multiplier (kecil pengaruhnya)
+  let luckyMultiplier = 1 + (rod + bait) / 15000;
+
+  // pity: setiap kali gagal secret, pity += 0.00000003
+  let pityBonus = pity;
+
+  let adjusted = {};
+  for (let r in baseRarity) {
+    adjusted[r] = baseRarity[r] * luckyMultiplier;
+  }
+
+  // secret penalty: jangan Naik terlalu banyak
+  adjusted["Secret"] = baseRarity["Secret"] * luckyMultiplier + pityBonus;
+
+  // normalisasi biar total = 1
+  let sum = Object.values(adjusted).reduce((a,b)=>a+b, 0);
+  for (let r in adjusted) {
+    adjusted[r] /= sum;
+  }
+
+  return adjusted;
+}
+
+// melakukan 1 kali roll rarity
+function rollRarity(adjusted){
+  let x = Math.random();
+  let acc = 0;
+  for (let r in adjusted) {
+    acc += adjusted[r];
+    if (x <= acc) return r;
+  }
+  return "Common";
+}
+
+// SIMULASI UTAMA
+function simulate() {
+
+  if (!initialized) initCounters();
+
+  let tries = parseInt(document.getElementById("tries").value);
+  totalMancing += tries;
+
+  for (let i=0; i<tries; i++) {
+    let adjusted = getAdjustedRarity();
+    let r = rollRarity(adjusted);
+
+    counts[r]++;
+
+    // sistem pity → tambah setiap gagal Secret
+    if (r !== "Secret") {
+      pity += 0.00000003;   // scaling kecil seperti game real
+    } else {
+      pity = 0;             // dapat secret → pity reset
+    }
+  }
+
+  updateOutput();
+}
+
+function updateOutput(){
+  let t = "=== HASIL SIMULASI ===\n";
+  t += `Total Mancing: ${totalMancing}\n`;
+  t += `Pity Saat Ini: ${pity.toFixed(10)}\n\n`;
+
+  for (let r in counts) {
+    t += `${r}: ${counts[r]}\n`;
+  }
+
+  document.getElementById("output").textContent = t;
+}
+
+function resetAll(){
+  pity = 0;
+  totalMancing = 0;
+  initCounters();
+  document.getElementById("output").textContent = "Semua data telah direset.";
+}
+</script>
+
+</body>
+</html>
