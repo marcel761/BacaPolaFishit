@@ -96,7 +96,7 @@
 
 <!-- HEADER -->
 <header>
-  🎣 RNG Fish-It Simulator
+  🎣 Cari Pola Fish-It 
 </header>
 
 <!-- MAIN CONTENT -->
@@ -107,15 +107,51 @@
   <label>Rod Lucky (%):</label>
   <input id="rod" value="760">
 
-  <label>Bait Lucky (%):</label>
+  <label>Bobbers Lucky (%):</label>
   <input id="bait" value="320">
+
+  <label>Pilih Enchanted 1:</label>
+<select id="ench1">
+  <option value="0">Tidak dipakai</option>
+  <option value="50">Leprechaun II (+50%)</option>
+  <option value="30">Leprechaun I (+30%)</option>
+  <option value="20">Empowered I (+20%)</option>
+  <option value="-75">Cursed I (-75%)</option>
+  <option value="10">Prismatic I (+10%)</option>
+  <option value="80">Stromhunter (Saat Badai +80%)</option>
+  <option value="60">Stargazer (Saat Malam +60%)</option>
+  <option value="0">Big Hunter I (Tidak menambah luck)</option>
+  <option value="0">Mutation Hunter II (Tidak menambah luck)</option>
+  <option value="0">Glistening (Tidak menambah luck)</option>
+  <option value="0">Gold Digger (Tidak menambah luck)</option>
+  <option value="0">Reeler (Tidak menambah luck)</option>
+  <option value="0">Xperienced (Tidak menambah luck)</option>
+</select>
+
+<label>Pilih Enchanted 2:</label>
+<select id="ench2">
+  <option value="0">Tidak dipakai</option>
+  <option value="50">Leprechaun II (+50%)</option>
+  <option value="30">Leprechaun I (+30%)</option>
+  <option value="20">Empowered I (+20%)</option>
+  <option value="-75">Cursed I (-75%)</option>
+  <option value="10">Prismatic I (+10%)</option>
+  <option value="80">Stromhunter (Saat Badai +80%)</option>
+  <option value="60">Stargazer (Saat Malam +60%)</option>
+  <option value="0">Big Hunter I</option>
+  <option value="0">Mutation Hunter II</option>
+  <option value="0">Glistening</option>
+  <option value="0">Gold Digger</option>
+  <option value="0">Reeler</option>
+  <option value="0">Xperienced</option>
+</select>
+
+  <label>Lucky Bonus (%):</label>
+  <input id="manualLucky" value="0">
 
   <label>Jumlah mancing per run:</label>
   <input id="tries" value="500">
 
-   <label>Lucky Bonus Manual (%):</label>
-  <input id="manualLucky" value="0">
-  
   <button id="runBtn" onclick="simulate()">▶ Jalankan Simulasi</button>
   <button id="resetBtn" onclick="resetAll()">🔄 Reset</button>
 
@@ -125,7 +161,7 @@
 
 <!-- FOOTER -->
 <footer>
-  © 2025 • Fish-It RNG Simulator Mobile
+  © 2025 • Goretzkaa15
 </footer>
 
 <script>
@@ -147,21 +183,21 @@ let baseRarity = {
   "Secret":    1 / 4000000
 };
 
-function initCounters(){
-  for (let r in baseRarity) counts[r] = 0;
-  initialized = true;
-}
-
 function getAdjustedRarity() {
   let rod = parseFloat(document.getElementById("rod").value);
   let bait = parseFloat(document.getElementById("bait").value);
   let manualLucky = parseFloat(document.getElementById("manualLucky").value);
 
-  // Lucky multiplier → DILEMAHKAN agar tidak terlalu kuat
-  // Semua lucky dihitung lebih kecil (mirip game aslinya)
-  let luckyMultiplier = 1 + (rod + bait + manualLucky) / 20000;
+  // ambil 2 enchanted
+  let ench1 = parseFloat(document.getElementById("ench1").value);
+  let ench2 = parseFloat(document.getElementById("ench2").value);
 
-  // pity tetap mempengaruhi secret
+  // total lucky (tanpa mempengaruhi terlalu besar)
+  let totalLucky = rod + bait + manualLucky + ench1 + ench2;
+
+  // lucky multiplier dilemahkan
+  let luckyMultiplier = 1 + totalLucky / 20000;
+
   let pityBonus = pity;
 
   let adjusted = {};
@@ -169,15 +205,14 @@ function getAdjustedRarity() {
     adjusted[r] = baseRarity[r] * luckyMultiplier;
   }
 
-  // secret khusus → multiplier kecil + pity
   adjusted["Secret"] = baseRarity["Secret"] * luckyMultiplier + pityBonus;
 
-  // Normalisasi
   let sum = Object.values(adjusted).reduce((a,b)=>a+b, 0);
   for (let r in adjusted) adjusted[r] /= sum;
 
   return adjusted;
 }
+
 
 
 function rollRarity(adjusted){
