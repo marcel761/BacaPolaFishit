@@ -13,10 +13,9 @@
       color: white;
       font-family: Arial, sans-serif;
       height: 100vh;
-      overflow: hidden; /* agar yang scroll hanya main */
+      overflow: hidden;
     }
 
-    /* HEADER FIXED */
     header {
       position: fixed;
       top: 0;
@@ -29,9 +28,9 @@
       font-weight: bold;
       z-index: 10;
       border-bottom: 2px solid #334155;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
-    /* FOOTER FIXED */
     footer {
       position: fixed;
       bottom: 0;
@@ -43,66 +42,88 @@
       font-size: 13px;
       color: #cbd5e1;
       border-top: 2px solid #334155;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
     }
 
-    /* MAIN CONTENT SCROLLABLE */
     .main {
       position: absolute;
-      top: 70px;       /* tinggi header */
-      bottom: 50px;    /* tinggi footer */
+      top: 70px;
+      bottom: 55px;
       left: 0;
       right: 0;
-      overflow-y: scroll;
-      padding: 20px;
+      overflow-y: auto;
+      padding: 18px;
     }
 
-    input {
-      margin: 5px 0;
-      padding: 8px;
-      width: 95%;
-      border-radius: 6px;
-      border: 1px solid #333;
+    h3 {
+      margin-bottom: 10px;
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      font-size: 15px;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #334155;
       background: #0b1a27;
       color: white;
       font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 10px 15px;
+      padding: 12px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      margin: 5px 0;
-      font-weight: 700;
+      margin-top: 12px;
+      font-weight: bold;
       width: 100%;
-      font-size: 16px;
+      font-size: 17px;
+      transition: 0.15s;
     }
 
-    #runBtn { background:#38bdf8; color:#042033; }
-    #resetBtn { background:#ef4444; color:white; }
+    #runBtn {
+      background: #38bdf8;
+      color: #042033;
+    }
+    #runBtn:active { transform: scale(0.97); }
+
+    #resetBtn {
+      background: #ef4444;
+      color: white;
+    }
+    #resetBtn:active { transform: scale(0.97); }
 
     pre {
-      background:#0b1a27;
-      padding:15px;
-      border-radius:10px;
+      background: #0b1a27;
+      padding: 18px;
+      border-radius: 12px;
       white-space: pre-wrap;
-      word-wrap: break-word;
       font-size: 14px;
+      margin-top: 20px;
+      border: 1px solid #1e293b;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.35);
     }
-
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  🎣 Cari Pola Fish-It 
-</header>
+<header>🎣 Cari Pola Fish-It</header>
 
-<!-- MAIN CONTENT -->
 <div class="main">
 
-  <h3>Konfigurasi</h3>
+  <h3>Konfigurasi Simulator</h3>
 
   <label>Rod Lucky (%):</label>
   <input id="rod" value="760">
@@ -110,43 +131,43 @@
   <label>Bobbers Lucky (%):</label>
   <input id="bait" value="320">
 
-  <label>Pilih Enchanted 1:</label>
-<select id="ench1">
-  <option value="0">Tidak dipakai</option>
-  <option value="50">Leprechaun II (+50%)</option>
-  <option value="30">Leprechaun I (+30%)</option>
-  <option value="20">Empowered I (+20%)</option>
-  <option value="-75">Cursed I (-75%)</option>
-  <option value="10">Prismatic I (+10%)</option>
-  <option value="80">Stromhunter (Saat Badai +80%)</option>
-  <option value="60">Stargazer (Saat Malam +60%)</option>
-  <option value="0">Big Hunter I (Tidak menambah luck)</option>
-  <option value="0">Mutation Hunter II (Tidak menambah luck)</option>
-  <option value="0">Glistening (Tidak menambah luck)</option>
-  <option value="0">Gold Digger (Tidak menambah luck)</option>
-  <option value="0">Reeler (Tidak menambah luck)</option>
-  <option value="0">Xperienced (Tidak menambah luck)</option>
-</select>
+  <label>Enchanted 1:</label>
+  <select id="ench1">
+    <option value="0">Tidak dipakai</option>
+    <option value="50">Leprechaun II (+50%)</option>
+    <option value="30">Leprechaun I (+30%)</option>
+    <option value="20">Empowered I (+20%)</option>
+    <option value="-75">Cursed I (-75%)</option>
+    <option value="10">Prismatic I (+10%)</option>
+    <option value="80">Stromhunter (+80% saat badai)</option>
+    <option value="60">Stargazer (+60% saat malam)</option>
+    <option value="0">Big Hunter I</option>
+    <option value="0">Mutation Hunter II</option>
+    <option value="0">Glistening</option>
+    <option value="0">Gold Digger</option>
+    <option value="0">Reeler</option>
+    <option value="0">Xperienced</option>
+  </select>
 
-<label>Pilih Enchanted 2:</label>
-<select id="ench2">
-  <option value="0">Tidak dipakai</option>
-  <option value="50">Leprechaun II (+50%)</option>
-  <option value="30">Leprechaun I (+30%)</option>
-  <option value="20">Empowered I (+20%)</option>
-  <option value="-75">Cursed I (-75%)</option>
-  <option value="10">Prismatic I (+10%)</option>
-  <option value="80">Stromhunter (Saat Badai +80%)</option>
-  <option value="60">Stargazer (Saat Malam +60%)</option>
-  <option value="0">Big Hunter I</option>
-  <option value="0">Mutation Hunter II</option>
-  <option value="0">Glistening</option>
-  <option value="0">Gold Digger</option>
-  <option value="0">Reeler</option>
-  <option value="0">Xperienced</option>
-</select>
+  <label>Enchanted 2:</label>
+  <select id="ench2">
+    <option value="0">Tidak dipakai</option>
+    <option value="50">Leprechaun II (+50%)</option>
+    <option value="30">Leprechaun I (+30%)</option>
+    <option value="20">Empowered I (+20%)</option>
+    <option value="-75">Cursed I (-75%)</option>
+    <option value="10">Prismatic I (+10%)</option>
+    <option value="80">Stromhunter (+80% saat badai)</option>
+    <option value="60">Stargazer (+60% saat malam)</option>
+    <option value="0">Big Hunter I</option>
+    <option value="0">Mutation Hunter II</option>
+    <option value="0">Glistening</option>
+    <option value="0">Gold Digger</option>
+    <option value="0">Reeler</option>
+    <option value="0">Xperienced</option>
+  </select>
 
-  <label>Lucky Bonus (%):</label>
+  <label>Manual Lucky Bonus (%):</label>
   <input id="manualLucky" value="0">
 
   <label>Jumlah mancing per run:</label>
@@ -159,10 +180,7 @@
 
 </div>
 
-<!-- FOOTER -->
-<footer>
-  © 2025 • Goretzkaa15
-</footer>
+<footer>© 2025 • Goretzkaa15</footer>
 
 <script>
 let pity = 0;
@@ -170,7 +188,6 @@ let totalMancing = 0;
 let counts = {};
 let initialized = false;
 let runNumber = 0;
-
 let historyLogs = [];
 
 let baseRarity = {
@@ -183,27 +200,30 @@ let baseRarity = {
   "Secret":    1 / 4000000
 };
 
+// FIXED — function yg hilang tadi
+function initCounters() {
+  counts = {};
+  for (let r in baseRarity) {
+    counts[r] = 0;
+  }
+  initialized = true;
+}
+
 function getAdjustedRarity() {
   let rod = parseFloat(document.getElementById("rod").value);
   let bait = parseFloat(document.getElementById("bait").value);
   let manualLucky = parseFloat(document.getElementById("manualLucky").value);
-
-  // ambil 2 enchanted
   let ench1 = parseFloat(document.getElementById("ench1").value);
   let ench2 = parseFloat(document.getElementById("ench2").value);
 
-  // total lucky (tanpa mempengaruhi terlalu besar)
   let totalLucky = rod + bait + manualLucky + ench1 + ench2;
-
-  // lucky multiplier dilemahkan
   let luckyMultiplier = 1 + totalLucky / 20000;
 
   let pityBonus = pity;
-
   let adjusted = {};
-  for (let r in baseRarity) {
+
+  for (let r in baseRarity)
     adjusted[r] = baseRarity[r] * luckyMultiplier;
-  }
 
   adjusted["Secret"] = baseRarity["Secret"] * luckyMultiplier + pityBonus;
 
@@ -212,8 +232,6 @@ function getAdjustedRarity() {
 
   return adjusted;
 }
-
-
 
 function rollRarity(adjusted){
   let x = Math.random();
@@ -226,7 +244,6 @@ function rollRarity(adjusted){
 }
 
 function simulate() {
-
   if (!initialized) initCounters();
 
   let tries = parseInt(document.getElementById("tries").value);
@@ -252,7 +269,7 @@ function simulate() {
 }
 
 function saveHistory(run, tries, localCount){
-  let logText = 
+  let logText =
 `RUN #${run}
 Jumlah: ${tries}
 Common: ${localCount.Common}
@@ -268,7 +285,6 @@ Secret: ${localCount.Secret}
 }
 
 function updateOutput(){
-
   let t = "=== TOTAL AKUMULASI ===\n";
   t += `Total Mancing: ${totalMancing}\n`;
   t += `Pity Saat Ini: ${pity.toFixed(10)}\n\n`;
