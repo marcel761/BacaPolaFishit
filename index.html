@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<h2>🎣 RNG Fish-It Simulator (Pity + Continues)</h2>
+<h2>🎣 RNG Fish-It Simulator (Pity + Continues + History Log)</h2>
 
 <label>Rod Lucky (%): </label>
 <input id="rod" value="760"><br>
@@ -30,12 +30,15 @@
 <pre id="output"></pre>
 
 <script>
-let pity = 0;                 // pity sistem
-let totalMancing = 0;         // total run kumulatif
-let counts = {};              // counter rarity
-let initialized = false;      // kontrol inisialisasi awal
+let pity = 0;
+let totalMancing = 0;
+let counts = {};
+let initialized = false;
+let runNumber = 0;
 
-// Base rarity Fish-It (perkiraan mendekati real)
+// HISTORY: menyimpan semua hasil run
+let historyLogs = [];
+
 let baseRarity = {
   "Common":    0.75,
   "Uncommon":  0.15,
@@ -43,7 +46,7 @@ let baseRarity = {
   "Epic":      0.025,
   "Legendary": 0.008,
   "Mythic":    0.0008,
-  "Secret":    1 / 4000000    // 1:4 juta ~ realistis
+  "Secret":    1 / 4000000
 };
 
 function initCounters(){
@@ -51,36 +54,24 @@ function initCounters(){
   initialized = true;
 }
 
-// membuat probabilitas modifikasi (rod + bait + pity)
 function getAdjustedRarity() {
-
   let rod = parseFloat(document.getElementById("rod").value);
   let bait = parseFloat(document.getElementById("bait").value);
 
-  // lucky multiplier (kecil pengaruhnya)
   let luckyMultiplier = 1 + (rod + bait) / 15000;
-
-  // pity: setiap kali gagal secret, pity += 0.00000003
   let pityBonus = pity;
 
   let adjusted = {};
-  for (let r in baseRarity) {
-    adjusted[r] = baseRarity[r] * luckyMultiplier;
-  }
+  for (let r in baseRarity) adjusted[r] = baseRarity[r] * luckyMultiplier;
 
-  // secret penalty: jangan Naik terlalu banyak
   adjusted["Secret"] = baseRarity["Secret"] * luckyMultiplier + pityBonus;
 
-  // normalisasi biar total = 1
   let sum = Object.values(adjusted).reduce((a,b)=>a+b, 0);
-  for (let r in adjusted) {
-    adjusted[r] /= sum;
-  }
+  for (let r in adjusted) adjusted[r] /= sum;
 
   return adjusted;
 }
 
-// melakukan 1 kali roll rarity
 function rollRarity(adjusted){
   let x = Math.random();
   let acc = 0;
@@ -91,7 +82,6 @@ function rollRarity(adjusted){
   return "Common";
 }
 
-// SIMULASI UTAMA
 function simulate() {
 
   if (!initialized) initCounters();
@@ -99,31 +89,51 @@ function simulate() {
   let tries = parseInt(document.getElementById("tries").value);
   totalMancing += tries;
 
+  let localCount = {};
+  for (let r in baseRarity) localCount[r] = 0;
+
   for (let i=0; i<tries; i++) {
     let adjusted = getAdjustedRarity();
     let r = rollRarity(adjusted);
 
     counts[r]++;
+    localCount[r]++;
 
-    // sistem pity → tambah setiap gagal Secret
-    if (r !== "Secret") {
-      pity += 0.00000003;   // scaling kecil seperti game real
-    } else {
-      pity = 0;             // dapat secret → pity reset
-    }
+    if (r !== "Secret") pity += 0.00000003;
+    else pity = 0;
   }
 
+  runNumber++;
+  saveHistory(runNumber, tries, localCount);
   updateOutput();
 }
 
+function saveHistory(run, tries, localCount){
+  let logText = 
+`RUN #${run}
+Jumlah: ${tries}
+Common: ${localCount.Common}
+Uncommon: ${localCount.Uncommon}
+Rare: ${localCount.Rare}
+Epic: ${localCount.Epic}
+Legendary: ${localCount.Legendary}
+Mythic: ${localCount.Mythic}
+Secret: ${localCount.Secret}
+-----------------------------`;
+
+  historyLogs.push(logText);
+}
+
 function updateOutput(){
-  let t = "=== HASIL SIMULASI ===\n";
+
+  let t = "=== TOTAL AKUMULASI ===\n";
   t += `Total Mancing: ${totalMancing}\n`;
   t += `Pity Saat Ini: ${pity.toFixed(10)}\n\n`;
 
-  for (let r in counts) {
-    t += `${r}: ${counts[r]}\n`;
-  }
+  for (let r in counts) t += `${r}: ${counts[r]}\n`;
+
+  t += `\n\n=== HISTORY PER RUN ===\n\n`;
+  historyLogs.forEach(log => t += log + "\n");
 
   document.getElementById("output").textContent = t;
 }
@@ -131,8 +141,11 @@ function updateOutput(){
 function resetAll(){
   pity = 0;
   totalMancing = 0;
+  runNumber = 0;
+  historyLogs = [];
   initCounters();
-  document.getElementById("output").textContent = "Semua data telah direset.";
+
+  document.getElementById("output").textContent = "Semua data telah direset.\n";
 }
 </script>
 
