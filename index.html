@@ -2,9 +2,9 @@
 <html>
 <head>
   <title>RNG Fish-It Simulator</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -175,6 +175,11 @@
 
   <button id="runBtn" onclick="simulate()">▶ Jalankan Simulasi</button>
   <button id="resetBtn" onclick="resetAll()">🔄 Reset</button>
+  
+  <button id="downloadPdfBtn" onclick="downloadPDF()" style="background:#0ea5e9;color:white;">
+  📄 Download PDF
+  </button>
+
 
   <pre id="output"></pre>
 
@@ -306,7 +311,46 @@ function resetAll(){
 
   document.getElementById("output").textContent = "Semua data telah direset.\n";
 }
+  async function downloadPDF() {
+  if (historyLogs.length === 0) {
+    alert("Belum ada simulasi yang dijalankan!");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+
+  let pdf = new jsPDF({
+    orientation: "p",
+    unit: "pt",
+    format: "a4"
+  });
+
+  // Ambil text dari output <pre>
+  let text = document.getElementById("output").textContent;
+
+  let margin = 40;
+  let maxWidth = 520;
+  let y = 40;
+
+  pdf.setFont("Courier", "normal");
+  pdf.setFontSize(10);
+
+  // Pecah otomatis jika terlalu panjang
+  let lines = pdf.splitTextToSize(text, maxWidth);
+
+  for (let i = 0; i < lines.length; i++) {
+    if (y > 780) {
+      pdf.addPage();
+      y = 40;
+    }
+    pdf.text(lines[i], margin, y);
+    y += 14;
+  }
+
+  pdf.save(`Simulasi_FishIt_Run_${runNumber}.pdf`);
+}
+
 </script>
 
 </body>
-</html>
+  </html>
